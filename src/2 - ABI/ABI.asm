@@ -158,14 +158,15 @@ product_9_f:
   push R13
   sub RSP, 16
   movaps [RSP], XMM8
+
   sub RSP, 16
   movaps [RSP], XMM9
   ;--
-  mov R10D, [RSP + 8*8]
-  mov R11D, [RSP + 8*9]
-  mov R12D, [RSP + 8*10]
-  mov R13D, [RSP + 8*11]
-  movss XMM8, [RSP + 8*12]
+  mov R10D, [RBP + 8*2]
+  mov R11D, [RBP + 8*3]
+  mov R12D, [RBP + 8*4]
+  mov R13D, [RBP + 8*5]
+  movss XMM8, [RBP + 8*6]
 
   ;convertimos single precision a double precision
   CVTSS2SD XMM0, XMM0
@@ -213,10 +214,9 @@ product_9_f:
   MULSD XMM0, XMM8
   MULSD XMM0, XMM9
 
-  CVTSD2SI EAX, XMM0
 
 
-  mov dword [RDI], EAX
+  movsd [RDI], XMM0
 
   ;epilogo
   movaps XMM9, [RSP]
@@ -225,5 +225,5 @@ product_9_f:
   add RSP, 16
   pop R13
   pop R12
-
+  pop RBP
 	ret
