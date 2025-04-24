@@ -105,11 +105,7 @@ alternate_sum_4_using_c_alternative:
 ; uint32_t alternate_sum_8(uint32_t x1, uint32_t x2, uint32_t x3, uint32_t x4, uint32_t x5, uint32_t x6, uint32_t x7, uint32_t x8);
 ; registros y pila: x1[?], x2[?], x3[?], x4[?], x5[?], x6[?], x7[?], x8[?]
 alternate_sum_8:
-	;prologo
 
-	; COMPLETAR
-
-	;epilogo
 	ret
 
 
@@ -117,6 +113,12 @@ alternate_sum_8:
 ;void product_2_f(uint32_t * destination, uint32_t x1, float f1);
 ;registros: destination[?], x1[?], f1[?]
 product_2_f:
+  CVTSI2SD xmm1, ESI
+  CVTSS2SD xmm0, xmm0
+  mulsd xmm1,xmm0
+  CVTTSD2SI eax, xmm1
+
+  mov dword [rdi], eax  
 	ret
 
 
@@ -124,24 +126,104 @@ product_2_f:
 ;, uint32_t x1, float f1, uint32_t x2, float f2, uint32_t x3, float f3, uint32_t x4, float f4
 ;, uint32_t x5, float f5, uint32_t x6, float f6, uint32_t x7, float f7, uint32_t x8, float f8
 ;, uint32_t x9, float f9);
-;registros y pila: destination[rdi], x1[?], f1[?], x2[?], f2[?], x3[?], f3[?], x4[?], f4[?]
+;registros y pila: destination[rdi], x1[rsi], f1[xmm0], x2[?], f2[?], x3[?], f3[?], x4[?], f4[?]
 ;	, x5[?], f5[?], x6[?], f6[?], x7[?], f7[?], x8[?], f8[?],
 ;	, x9[?], f9[?]
+; dest -> EDI
+; x1 -> ESI
+; x2 -> EDX
+; x3 -> ECX
+; x4 -> R8D
+; x5 -> R9D
+; x6 -> stack(0) -> R10D (v)
+; x7 -> stack(1) -> R11D (v)
+; x8 -> stack(2) -> R12D (nv)
+; x9 -> stack(3) -> R13D (nv)
+; f1 -> XMM0
+; f2 -> XMM1
+; f3 -> XMM2
+; f4 -> XMM3
+; f5 -> XMM4
+; f6 -> XMM5
+; f7 -> XMM6
+; f8 -> XMM7
+; f9 -> stack(4) -> XMM8 (nv)
+
 product_9_f:
-	;prologo
-	push rbp
-	mov rbp, rsp
 
-	;convertimos los flotantes de cada registro xmm en doubles
-	; COMPLETAR
+  ;prologo
+  push RBP
+  mov RBP, RSP
+  push R12
+  push R13
+  sub RSP, 16
+  movaps [RSP], XMM8
+  sub RSP, 16
+  movaps [RSP], XMM9
+  ;--
+  mov R10D, [RSP + 8*8]
+  mov R11D, [RSP + 8*9]
+  mov R12D, [RSP + 8*10]
+  mov R13D, [RSP + 8*11]
+  movss XMM8, [RSP + 8*12]
 
-	;multiplicamos los doubles en xmm0 <- xmm0 * xmm1, xmmo * xmm2 , ...
-	; COMPLETAR
+  ;convertimos single precision a double precision
+  CVTSS2SD XMM0, XMM0
+  CVTSS2SD XMM1, XMM1
+  CVTSS2SD XMM2, XMM2
+  CVTSS2SD XMM3, XMM3
+  CVTSS2SD XMM4, XMM4
+  CVTSS2SD XMM5, XMM5
+  CVTSS2SD XMM6, XMM6
+  CVTSS2SD XMM7, XMM7
+  CVTSS2SD XMM8, XMM8
 
-	; convertimos los enteros en doubles y los multiplicamos por xmm0.
-	; COMPLETAR
 
-	; epilogo
-	pop rbp
+  ; multiplicamos los float
+  MULSD XMM0, XMM1
+  MULSD XMM0, XMM2
+  MULSD XMM0, XMM3
+  MULSD XMM0, XMM4
+  MULSD XMM0, XMM5
+  MULSD XMM0, XMM6
+  MULSD XMM0, XMM7
+  MULSD XMM0, XMM8
+
+
+  ;convertimos integer a double precision float
+  CVTSI2SD XMM1, ESI
+  CVTSI2SD XMM2, EDX
+  CVTSI2SD XMM3, ECX
+  CVTSI2SD XMM4, R8D
+  CVTSI2SD XMM5, R9D
+  CVTSI2SD XMM6, R10D
+  CVTSI2SD XMM7, R11D
+  CVTSI2SD XMM8, R12D
+  CVTSI2SD XMM9, R13D
+
+
+  ; multiplicamos los integer convertidos por XMM0
+  MULSD XMM0, XMM1
+  MULSD XMM0, XMM2
+  MULSD XMM0, XMM3
+  MULSD XMM0, XMM4
+  MULSD XMM0, XMM5
+  MULSD XMM0, XMM6
+  MULSD XMM0, XMM7
+  MULSD XMM0, XMM8
+  MULSD XMM0, XMM9
+
+  CVTSD2SI EAX, XMM0
+
+
+  mov dword [RDI], EAX
+
+  ;epilogo
+  movaps XMM9, [RSP]
+  add RSP, 16
+  movaps XMM8, [RSP]
+  add RSP, 16
+  pop R13
+  pop R12
+
 	ret
-
