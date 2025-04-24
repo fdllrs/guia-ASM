@@ -66,6 +66,12 @@ alternate_sum_4_using_c:
   ret
 
 
+
+
+
+
+
+
 alternate_sum_4_using_c_alternative:
   ;prologo
   push RBP ;pila alineada
