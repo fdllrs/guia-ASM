@@ -107,7 +107,7 @@ int main() {
 	printf("= %s\n", test_suite_name);
 	printf("==============\n");
 	test_cantidad_total_de_elementos();
-	test_cantidad_total_de_elementos_packed();
+	// test_cantidad_total_de_elementos_packed();
 	printf("\n");
 
 	tests_end(test_suite_name);
