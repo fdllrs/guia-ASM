@@ -34,16 +34,17 @@ global cantidad_total_de_elementos_packed
 ;extern uint32_t cantidad_total_de_elementos(lista_t* lista);
 ;registros: lista[rdi]
 
+global cantidad_total_de_elementos
 cantidad_total_de_elementos:
 	push RBP
 	mov RBP, RSP
 	
 	xor EAX, EAX ; en este registro llevo la cuenta de la longitud
 
-	recursion:
+	.recursion:
 	mov RSI, [RDI] ; recupero el nodo
 	cmp RSI, 0 ; si no existe salgo
-	je salir
+	je .salir
 
 	mov EDX, [RSI + NODO_OFFSET_LONGITUD]
 
@@ -51,15 +52,37 @@ cantidad_total_de_elementos:
 
 	mov RDI, RSI ; busco el siguiente nodo
 	
-	jmp recursion
+	jmp .recursion
 
-	salir:
+	.salir:
 	pop RBP
 
 	ret
 
 ;extern uint32_t cantidad_total_de_elementos_packed(packed_lista_t* lista);
 ;registros: lista[?]
+global cantidad_total_de_elementos_packed
 cantidad_total_de_elementos_packed:
+	push RBP
+	mov RBP, RSP
+	
+	xor EAX, EAX ; en este registro llevo la cuenta de la longitud
+
+	.recursion:
+	mov RSI, [RDI] ; recupero el nodo
+	cmp RSI, 0 ; si no existe salgo
+	je .salir
+
+	mov EDX, [RSI + PACKED_NODO_OFFSET_LONGITUD]
+
+	add EAX, EDX ; sumo la longitud al total
+
+	mov RDI, RSI ; busco el siguiente nodo
+	
+	jmp .recursion
+
+	.salir:
+	pop RBP
+
 	ret
 
